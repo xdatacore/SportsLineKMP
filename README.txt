@@ -1,0 +1,1 @@
+Abra AndroidStudio y en la terminal ejecute ./gradlew build

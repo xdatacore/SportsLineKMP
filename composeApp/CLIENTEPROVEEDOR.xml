@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<CLIENTEPROVEEDOR>
+    <clienteproveedor>
+        <idClienteProveedor>Brandon</idClienteProveedor>
+        <nombre>Brandon</nombre>
+        <apellido>Luna</apellido>
+        <correo>sada@gmail.com</correo>
+    </clienteproveedor>
+    <clienteproveedor>
+        <idClienteProveedor>Cliente</idClienteProveedor>
+        <nombre>Clientes</nombre>
+        <apellido>Proveedores</apellido>
+        <correo>proveedor@gmail.com</correo>
+    </clienteproveedor>
+    <clienteproveedor>
+        <idClienteProveedor>Proveedor</idClienteProveedor>
+        <nombre>Proveedor</nombre>
+        <apellido>Cliente</apellido>
+        <correo>clienteproveedor@gmail.com</correo>
+    </clienteproveedor>
+</CLIENTEPROVEEDOR>

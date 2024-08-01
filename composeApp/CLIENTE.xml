@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<CLIENTE>
+    <cliente>
+        <idCliente>Tavo</idCliente>
+        <nombre>Tavos</nombre>
+        <apellido>Tavo</apellido>
+        <correo>tavo1@gmail.com</correo>
+    </cliente>
+    <cliente>
+        <idCliente>zxc</idCliente>
+        <nombre>zxc</nombre>
+        <apellido>zxc</apellido>
+        <correo>zxc@gmail.com</correo>
+    </cliente>
+    <cliente>
+        <idCliente>zxx</idCliente>
+        <nombre>zxx</nombre>
+        <apellido>zxx</apellido>
+        <correo>zxx</correo>
+    </cliente>
+    <cliente>
+        <idCliente>Ruben</idCliente>
+        <nombre>Ruben</nombre>
+        <apellido>Lopez</apellido>
+        <correo>rubenlopez@gmail.com</correo>
+    </cliente>
+    <cliente>
+        <idCliente>bnm</idCliente>
+        <nombre>bnm</nombre>
+        <apellido>bnm</apellido>
+        <correo>bnm@gmail.com</correo>
+    </cliente>
+    <cliente>
+        <idCliente>cliente</idCliente>
+        <nombre>clientes</nombre>
+        <apellido>cliente</apellido>
+        <correo>cliente@gmail.com</correo>
+    </cliente>
+</CLIENTE>
