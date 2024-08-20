@@ -10,6 +10,4 @@ fun main() = application {
     ) {
         App()
     }
-
-    crearArchivosXml()
 }

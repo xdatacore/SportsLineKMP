@@ -8,12 +8,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import models.Producto
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.ProductService
 
 class AdmProductsViewModel : KoinComponent {
-    private val productoPersistenceManager = providePersistenceManager(Producto::class)
-    private val _productosStateFlow = MutableStateFlow<List<Producto>>(emptyList())
-    val productosStateFlow: StateFlow<List<Producto>> get() = _productosStateFlow
+    private val productService: ProductService by inject()
+
+    private val _productosStateFlow = MutableStateFlow<List<Producto?>>(emptyList())
+    val productosStateFlow: StateFlow<List<Producto?>> get() = _productosStateFlow
 
     init {
         loadProductos()
@@ -21,27 +23,27 @@ class AdmProductsViewModel : KoinComponent {
 
     private fun loadProductos() {
         CoroutineScope(Dispatchers.IO).launch {
-            _productosStateFlow.value = productoPersistenceManager.readAll()
+            _productosStateFlow.value = productService.readAll()
         }
     }
 
     fun addProducto(producto: Producto) {
         CoroutineScope(Dispatchers.IO).launch {
-            productoPersistenceManager.create(producto)
+            productService.create(producto)
             loadProductos()
         }
     }
 
     fun updateProducto(producto: Producto) {
         CoroutineScope(Dispatchers.IO).launch {
-            productoPersistenceManager.update(producto)
+            productService.update(producto)
             loadProductos()
         }
     }
 
     fun deleteProducto(producto: Producto) {
         CoroutineScope(Dispatchers.IO).launch {
-            productoPersistenceManager.delete(producto)
+            productService.delete(producto.idProducto.toString())
             loadProductos()
         }
     }

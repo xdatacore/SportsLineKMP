@@ -1,24 +1,33 @@
 package viewModels
 
-import interfaces.PersistenceManager
+import kotlinx.coroutines.runBlocking
 import models.Usuario
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.UserService
 import utils.SecurityStorage
 import utils.XPrintln
 
 class AccountViewModel : KoinComponent {
-    private val usuarioManager: PersistenceManager<Usuario> =
-        providePersistenceManager(Usuario::class)
+    private val userService: UserService by inject()
 
     fun getCurrentUser(): Usuario? {
         val userId = SecurityStorage.getUserId()
-        return userId?.let { usuarioManager.read(Usuario(it, "", 0)) }
+        return if (userId != null) {
+            runBlocking {
+                userService.getCurrentUser(userId)
+            }
+        } else {
+            XPrintln.log("User ID is null")
+            null
+        }
     }
 
     fun saveUser(user: Usuario): Boolean {
         return try {
-            usuarioManager.update(user)
+            runBlocking {
+                userService.saveUser(user)
+            }
             true
         } catch (e: Exception) {
             XPrintln.log("Error during saveUser: ${e.message}")
@@ -28,9 +37,12 @@ class AccountViewModel : KoinComponent {
 
     fun deleteUser(user: Usuario): Boolean {
         return try {
-            usuarioManager.delete(user)
+            runBlocking {
+                userService.deleteUser(user.nombreUsuario)
+            }
             true
         } catch (e: Exception) {
+            XPrintln.log("Error during deleteUser: ${e.message}")
             false
         }
     }

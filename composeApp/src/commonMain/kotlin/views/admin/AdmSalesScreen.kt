@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 import models.ClienteProveedor
 import models.Producto
 import org.jetbrains.compose.resources.painterResource
@@ -67,16 +68,18 @@ fun AdmSalesScreen() {
             modifier = Modifier.weight(1f)
         ) {
             items(productosState.filter {
-                it.idProducto?.contains(
+                it?.idProducto?.contains(
                     searchText,
                     true
                 ) == true
             }) { producto ->
-                ProductoItem(producto = producto, onUpdate = { cantidad ->
-                    val newSelectedProductos = selectedProductos.toMutableMap()
-                    newSelectedProductos[producto] = cantidad
-                    selectedProductos = newSelectedProductos
-                })
+                if (producto != null) {
+                    ProductoItem(producto = producto, onUpdate = { cantidad ->
+                        val newSelectedProductos = selectedProductos.toMutableMap()
+                        newSelectedProductos[producto] = cantidad
+                        selectedProductos = newSelectedProductos
+                    })
+                }
             }
         }
 
@@ -115,7 +118,11 @@ fun AdmSalesScreen() {
                                     selectedClienteProovedor = cliente
                                     isDropdownExpanded = false
                                 },
-                                text = { Text("${cliente.nombre} ${cliente.apellido}") }
+                                text = {
+                                    if (cliente != null) {
+                                        Text("${cliente.nombre} ${cliente.apellido}")
+                                    }
+                                }
                             )
                         }
                     }
@@ -124,7 +131,11 @@ fun AdmSalesScreen() {
         }
 
         Button(
-            onClick = { viewModel.completeSale(selectedClienteProovedor, selectedProductos) },
+            onClick = {
+                runBlocking {
+                    viewModel.completeSale(selectedClienteProovedor, selectedProductos)
+                }
+            },
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Text("Completar Venta")

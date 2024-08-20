@@ -88,18 +88,20 @@ fun AdmProductsScreen(viewModel: AdmProductsViewModel) {
             modifier = Modifier.weight(1f)
         ) {
             items(productosState.filter {
-                it.idProducto?.contains(searchText, true) == true
+                it?.idProducto?.contains(searchText, true) == true
             }) { producto ->
-                ProductoItem(
-                    producto = producto,
-                    onUpdate = { cantidad ->
-                        val newSelectedProductos = selectedProductos.toMutableMap()
-                        newSelectedProductos[producto] = cantidad
-                        selectedProductos = newSelectedProductos
-                    },
-                    onEdit = { showEditProductDialog = it },
-                    onDelete = { viewModel.deleteProducto(it) }
-                )
+                if (producto != null) {
+                    ProductoItem(
+                        producto = producto,
+                        onUpdate = { cantidad ->
+                            val newSelectedProductos = selectedProductos.toMutableMap()
+                            newSelectedProductos[producto] = cantidad
+                            selectedProductos = newSelectedProductos
+                        },
+                        onEdit = { showEditProductDialog = it },
+                        onDelete = { viewModel.deleteProducto(it) }
+                    )
+                }
             }
         }
     }

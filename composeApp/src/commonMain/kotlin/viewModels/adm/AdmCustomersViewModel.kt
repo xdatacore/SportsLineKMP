@@ -1,6 +1,5 @@
 package viewModels.adm
 
-import interfaces.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -9,15 +8,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import models.ClienteProveedor
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.SupplierCustomerService
 
 class AdmCustomersViewModel : KoinComponent {
+    private val supplierCustomerService: SupplierCustomerService by inject()
 
-    private val clientePersistenceManager: PersistenceManager<ClienteProveedor> =
-        providePersistenceManager(ClienteProveedor::class)
-    private val _clientesStateFlow: MutableStateFlow<List<ClienteProveedor>> =
+    private val _clientesStateFlow: MutableStateFlow<List<ClienteProveedor?>> =
         MutableStateFlow(emptyList())
-    val clientesStateFlow: StateFlow<List<ClienteProveedor>> get() = _clientesStateFlow
+    val clientesStateFlow: StateFlow<List<ClienteProveedor?>> get() = _clientesStateFlow
 
     init {
         loadClientes()
@@ -26,7 +25,7 @@ class AdmCustomersViewModel : KoinComponent {
     private fun loadClientes() {
         // Utilizar coroutines para cargar clientes
         CoroutineScope(Dispatchers.IO).launch {
-            _clientesStateFlow.value = clientePersistenceManager.readAll()
+            _clientesStateFlow.value = supplierCustomerService.readAll()
         }
     }
 
@@ -34,7 +33,7 @@ class AdmCustomersViewModel : KoinComponent {
         // Utilizar coroutines para añadir cliente
         CoroutineScope(Dispatchers.IO).launch {
             clienteProveedor.idClienteProveedor = clienteProveedor.nombre
-            clientePersistenceManager.create(clienteProveedor)
+            supplierCustomerService.create(clienteProveedor)
             loadClientes() // Recargar la lista de clientes después de añadir
         }
     }
@@ -42,7 +41,7 @@ class AdmCustomersViewModel : KoinComponent {
     fun updateCliente(clienteProveedor: ClienteProveedor) {
         // Utilizar coroutines para actualizar cliente
         CoroutineScope(Dispatchers.IO).launch {
-            clientePersistenceManager.update(clienteProveedor)
+            supplierCustomerService.save(clienteProveedor)
             loadClientes() // Recargar la lista de clientes después de actualizar
         }
     }
@@ -50,7 +49,7 @@ class AdmCustomersViewModel : KoinComponent {
     fun deleteCliente(clienteProveedor: ClienteProveedor) {
         // Utilizar coroutines para eliminar cliente
         CoroutineScope(Dispatchers.IO).launch {
-            clientePersistenceManager.delete(clienteProveedor)
+            supplierCustomerService.delete(clienteProveedor.idClienteProveedor.toString())
             loadClientes() // Recargar la lista de clientes después de eliminar
         }
     }

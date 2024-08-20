@@ -7,5 +7,5 @@ object AppConfig {
         get() = !isDebug
 
     val BaseURL: String
-        get() = if (isDebug) "http://localhost:60749/" else "https://api.example.com"
+        get() = if (isDebug) "http://localhost:8080/" else "https://api.example.com"
 }

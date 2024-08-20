@@ -1,23 +1,23 @@
 package viewModels
 
 import config.AppConfig.isDebug
-import interfaces.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import models.AuthenticationRequest
 import models.Usuario
 import navigation.Router
 import navigation.Screen
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.SecurityService
 import utils.SecurityStorage
 import utils.XPrintln
 
 class LoginViewModel : KoinComponent {
-    private val usuarioManager: PersistenceManager<Usuario> =
-        providePersistenceManager(Usuario::class)
+    private val securityService: SecurityService by inject()
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> get() = _username
@@ -34,7 +34,7 @@ class LoginViewModel : KoinComponent {
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated: StateFlow<Boolean> get() = _isAuthenticated
 
-    private val _userProfileId = MutableStateFlow(0)
+    private val _userProfileId = MutableStateFlow(1)
     val userProfileId: StateFlow<Int> get() = _userProfileId
 
     init {
@@ -70,15 +70,17 @@ class LoginViewModel : KoinComponent {
     }
 
     fun login(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        XPrintln.log("fun login")
         if (_username.value.isNotEmpty() && _password.value.isNotEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     _isLoading.value = true
-                    val user = usuarioManager.read(Usuario(_username.value, "0", 0))
-                    if (user != null && user.clave == _password.value) {
+
+                    val authRequest = AuthenticationRequest(_username.value, _password.value)
+                    val user = securityService.authenticate(authRequest)
+                    XPrintln.log(user.toString())
+                    if (user != null) {
                         SecurityStorage.setUserProfileId(user.tipo)
-                        SecurityStorage.setUserId(user.id)
+                        SecurityStorage.setUserId(user.nombreUsuario)
                         //onSuccess()
                         _isAuthenticated.value = true
 
@@ -103,20 +105,17 @@ class LoginViewModel : KoinComponent {
             _isLoading.value = true
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    val user = usuarioManager.create(
-                        Usuario(
-                            _username.value,
-                            _password.value,
-                            _userProfileId.value
-                        )
-                    )
+                    val userRequest =
+                        Usuario(_username.value, _password.value, _userProfileId.value)
+                    val user = securityService.register(userRequest)
+                    XPrintln.log("securityService.register(userRequest): ${user}")
                     if (user != null) {
-                        XPrintln.log(" if (user != null && user.clave == _password.value): ${user}")
-                        SecurityStorage.setUserProfileId(_userProfileId.value)
-                        SecurityStorage.setUserId(_username.value)
+                        SecurityStorage.setUserProfileId(user.tipo)
+                        SecurityStorage.setUserId(user.nombreUsuario)
+                        SecurityStorage.saveToken(user.nombreUsuario)
                         onSuccess()
                         _isAuthenticated.value = true
-
+                        // Router.navigateTo(Screen.Account)
                     } else {
                         onError("Usuario o contraseña incorrectos")
                     }

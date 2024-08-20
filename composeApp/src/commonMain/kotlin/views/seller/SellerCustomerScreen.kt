@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 import models.Cliente
 import utils.XPrintln
 import viewModels.seller.SellerCustomerViewModel
@@ -88,9 +89,11 @@ fun SellerCustomerScreen(cliente: Cliente?, onBack: () -> Unit) {
         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
             Button(
                 onClick = {
-                    val result = viewModel.saveClient()
-                    message =
-                        if (result) "Cliente guardado con éxito" else "Error al guardar el cliente"
+                    runBlocking {
+                        val result = viewModel.saveClient()
+                        message =
+                            if (result) "Cliente guardado con éxito" else "Error al guardar el cliente"
+                    }
                     showSnackbar = true
                 },
                 modifier = Modifier.weight(1f).padding(end = 8.dp)
@@ -99,9 +102,11 @@ fun SellerCustomerScreen(cliente: Cliente?, onBack: () -> Unit) {
             }
             Button(
                 onClick = {
-                    val result = viewModel.deleteClient()
-                    message =
-                        if (result) "Cliente eliminado con éxito" else "Error al eliminar el cliente"
+                    runBlocking {
+                        val result = viewModel.deleteClient()
+                        message =
+                            if (result) "Cliente eliminado con éxito" else "Error al eliminar el cliente"
+                    }
                     showSnackbar = true
                 },
                 modifier = Modifier.weight(1f).padding(start = 8.dp)

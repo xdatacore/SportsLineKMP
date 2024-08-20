@@ -82,18 +82,20 @@ fun AdmCustomersScreen(viewModel: AdmCustomersViewModel = remember { AdmCustomer
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(clientesState.filter {
-                (it.nombre?.contains(
+                (it?.nombre?.contains(
                     searchText,
                     true
-                ) == true) || (it.apellido?.contains(searchText, true) == true)
+                ) == true) || (it?.apellido?.contains(searchText, true) == true)
             }) { cliente ->
-                ClienteItem(cliente = cliente, onDelete = {
-                    selectedCliente = cliente
-                    showDeleteDialog = true
-                }, onEdit = {
-                    selectedCliente = cliente
-                    showAddEditDialog = true
-                })
+                if (cliente != null) {
+                    ClienteItem(cliente = cliente, onDelete = {
+                        selectedCliente = cliente
+                        showDeleteDialog = true
+                    }, onEdit = {
+                        selectedCliente = cliente
+                        showAddEditDialog = true
+                    })
+                }
             }
         }
 

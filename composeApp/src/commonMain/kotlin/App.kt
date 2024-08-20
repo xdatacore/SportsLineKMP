@@ -4,15 +4,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import interfaces.PersistenceManager
 import modules.initKoin
 import navigation.Router
 import navigation.Screen
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import utils.XPrintln
 import viewModels.LoginViewModel
 import views.LoginScreen
-import kotlin.reflect.KClass
 
 private var isKoinInitialized = false
 
@@ -22,9 +21,6 @@ fun initializeKoin() {
         isKoinInitialized = true
     }
 }
-
-expect fun crearArchivosXml()
-expect fun <T : Any> providePersistenceManager(clazz: KClass<T>): PersistenceManager<T>
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -37,14 +33,13 @@ fun App() {
     val isAuthenticated by loginViewModel.isAuthenticated.collectAsState()
 
     LaunchedEffect(isAuthenticated) {
+        XPrintln.log("Is authenticate: ${isAuthenticated}")
         if (isAuthenticated) {
             Router.navigateTo(Screen.Account)
         } else {
             Router.navigateTo(Screen.Login)
         }
     }
-
-    crearArchivosXml()
 
     MaterialTheme {
         if (currentScreen is Screen.Login) {

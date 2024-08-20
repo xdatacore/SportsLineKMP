@@ -26,6 +26,7 @@ import viewModels.AccountViewModel
 @Composable
 fun AccountScreen(viewModel: AccountViewModel) {
     var id by remember { mutableStateOf("") }
+    var nombreUsuario by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf(1) }
     var message by remember { mutableStateOf("") }
@@ -34,7 +35,7 @@ fun AccountScreen(viewModel: AccountViewModel) {
     LaunchedEffect(Unit) {
         val usuario = viewModel.getCurrentUser()
         if (usuario != null) {
-            id = usuario.id
+            nombreUsuario = usuario.nombreUsuario
             clave = usuario.clave
             tipo = usuario.tipo
         }
@@ -42,9 +43,10 @@ fun AccountScreen(viewModel: AccountViewModel) {
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         OutlinedTextField(
-            value = id,
-            onValueChange = { id = it },
-            label = { Text("ID") },
+            value = nombreUsuario,
+            onValueChange = { nombreUsuario = it },
+            readOnly = true,
+            label = { Text("Nombre de usuario") },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
         )
         OutlinedTextField(
@@ -63,7 +65,7 @@ fun AccountScreen(viewModel: AccountViewModel) {
         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
             Button(
                 onClick = {
-                    val result = viewModel.deleteUser(Usuario(id, clave, tipo))
+                    val result = viewModel.deleteUser(Usuario(nombreUsuario, clave, tipo))
                     message =
                         if (result) "Usuario eliminado con éxito" else "Error al eliminar el usuario"
                     showSnackbar = true
@@ -76,7 +78,7 @@ fun AccountScreen(viewModel: AccountViewModel) {
 
             Button(
                 onClick = {
-                    val result = viewModel.saveUser(Usuario(id, clave, tipo))
+                    val result = viewModel.saveUser(Usuario(nombreUsuario, clave, tipo))
                     message =
                         if (result) "Usuario guardado con éxito" else "Error al guardar el usuario"
                     showSnackbar = true

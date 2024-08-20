@@ -2,6 +2,7 @@ package viewModels.adm
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -10,31 +11,35 @@ import models.DetalleOC
 import models.OrdenCompra
 import models.Producto
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.ProductService
+import services.PurchaseOrderDetailService
+import services.PurchaseOrderHeaderService
+import services.SupplierCustomerService
 import utils.XPrintln
 import kotlin.random.Random
 
 class AdmSalesViewModel : KoinComponent {
-    private val productoPersistenceManager = providePersistenceManager(Producto::class)
-    private val clienteProveedorPersistenceManager =
-        providePersistenceManager(ClienteProveedor::class)
-    private val OrdenCompraPersistenceManager =
-        providePersistenceManager(OrdenCompra::class)
-    private val detalleOCPersistenceManager = providePersistenceManager(DetalleOC::class)
+    private val productService: ProductService by inject()
+    private val supplierCustomerService: SupplierCustomerService by inject()
+    private val purchaseOrderHeaderService: PurchaseOrderHeaderService by inject()
+    private val purchaseOrderDetailService: PurchaseOrderDetailService by inject()
 
-    private val _productosStateFlow = MutableStateFlow<List<Producto>>(emptyList())
-    val productosStateFlow: StateFlow<List<Producto>> get() = _productosStateFlow
+    private val _productosStateFlow = MutableStateFlow<List<Producto?>>(emptyList())
+    val productosStateFlow: StateFlow<List<Producto?>> get() = _productosStateFlow
 
-    private val _clientesProveedorStateFlow = MutableStateFlow<List<ClienteProveedor>>(emptyList())
-    val clientesProveedorStateFlow: StateFlow<List<ClienteProveedor>> get() = _clientesProveedorStateFlow
+    private val _clientesProveedorStateFlow = MutableStateFlow<List<ClienteProveedor?>>(emptyList())
+    val clientesProveedorStateFlow: StateFlow<List<ClienteProveedor?>> get() = _clientesProveedorStateFlow
 
     init {
-        _productosStateFlow.value = productoPersistenceManager.readAll()
-        println(_productosStateFlow.value)
-        _clientesProveedorStateFlow.value = clienteProveedorPersistenceManager.readAll()
+        runBlocking {
+            _productosStateFlow.value = productService.readAll()
+            _clientesProveedorStateFlow.value = supplierCustomerService.readAll()
+        }
+
     }
 
-    fun completeSale(clienteProveedor: ClienteProveedor?, productos: Map<Producto, Int>) {
+    suspend fun completeSale(clienteProveedor: ClienteProveedor?, productos: Map<Producto, Int>) {
         if (clienteProveedor == null || productos.isEmpty()) {
             XPrintln.log("Cliente o productos no válidos para completar la venta")
             XPrintln.log("Cliente: ${clienteProveedor}\nProductos: ${productos}")
@@ -53,7 +58,7 @@ class AdmSalesViewModel : KoinComponent {
             aplicada = true
         )
 
-        OrdenCompraPersistenceManager.create(ordenCompra)
+        purchaseOrderHeaderService.create(ordenCompra)
 
         productos.forEach { (producto, cantidad) ->
             val detalleOC = DetalleOC(
@@ -62,18 +67,18 @@ class AdmSalesViewModel : KoinComponent {
                 costo = producto.precioVenta,
                 cantidad = cantidad
             )
-            detalleOCPersistenceManager.create(detalleOC)
+            purchaseOrderDetailService.create(detalleOC)
 
             // Update product inventory
             val updatedProducto = producto.copy(inventario = producto.inventario - cantidad)
-            productoPersistenceManager.update(updatedProducto)
+            productService.update(updatedProducto)
         }
 
         XPrintln.log("Venta completada para $clienteProveedor con productos: $productos")
     }
 
-    private fun generateUniqueFacturaNumber(): Int {
-        val existingFacturas = OrdenCompraPersistenceManager.readAll().map { it.numOC }
+    private suspend fun generateUniqueFacturaNumber(): Int {
+        val existingFacturas = purchaseOrderHeaderService.readAll().map { it?.numOC }
         var numFactura: Int
         do {
             numFactura = Random.nextInt(1000, 9999)

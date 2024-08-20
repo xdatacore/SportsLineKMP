@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 import models.Cliente
 import org.jetbrains.compose.resources.painterResource
 import sportslinekmp.composeapp.generated.resources.Res
@@ -85,7 +86,7 @@ fun SellerCustomersScreen() {
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(clientesState) { cliente ->
-                ClienteItem(cliente = cliente, onDelete = {
+                ClienteItem(cliente = cliente!!, onDelete = {
                     selectedCliente = cliente
                     showDialog = true
                 })
@@ -95,7 +96,9 @@ fun SellerCustomersScreen() {
         if (showDialog && selectedCliente != null) {
             DeleteConfirmationDialog(
                 onConfirm = {
-                    viewModel.deleteCliente(selectedCliente!!)
+                    runBlocking {
+                        viewModel.deleteCliente(selectedCliente!!)
+                    }
                     selectedCliente = null
                     showDialog = false
                 },

@@ -26,44 +26,6 @@ import views.seller.SellerReportsScreen
 import views.seller.SellerSalesScreen
 import views.seller.SellerShoppingScreen
 
-//@Composable
-//fun MainScreen() {
-//    val currentScreen by Router.currentScreen.collectAsState()
-//    var userProfileId = 0;
-//
-//    if (SecurityStorage.getUserProfileId() != null) {
-//        userProfileId = SecurityStorage.getUserProfileId()!!;
-//    }
-//
-//    XPrintln.log("currentScreen: $currentScreen")
-//    XPrintln.log("userProfileId: $userProfileId")
-//
-//    Column(modifier = Modifier.fillMaxSize()) {
-//
-//        TabBar(userProfileId = userProfileId, onTabSelected = { screen ->
-//            Router.navigateTo(screen)
-//        })
-//
-//        when (val screen = currentScreen) {
-//            is Screen.Account -> AccountScreen(AccountViewModel())
-//
-//            is Screen.AdmCustomers -> AdmCustomersScreen(AdmCustomersViewModel())
-//            is Screen.AdmProducts -> AdmProductsScreen(AdmProductsViewModel())
-//            is Screen.AdmSales -> AdmSalesScreen(AdmSalesViewModel())
-//
-//            is Screen.SellerCustomers -> SellerCustomersScreen()
-//            is Screen.SellerCustomer -> SellerCustomerScreen(screen.cliente){
-//                Router.navigateBack()
-//            }
-//            is Screen.SellerReports -> SellerReportsScreen(SellerReportsViewModel())
-//            is Screen.SellerSales -> SellerSalesScreen(SellerSalesViewModel())
-//            is Screen.SellerShopping -> SellerShoppingScreen(SellerShoppingViewModel())
-//
-//            else -> Text("Unknown screen")
-//        }
-//    }
-//}
-
 @Composable
 fun MainScreen() {
     val currentScreen by Router.currentScreen.collectAsState()

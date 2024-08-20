@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 import viewModels.seller.SellerReportsViewModel
 
 @Composable
@@ -47,10 +48,10 @@ fun SellerReportsScreen(viewModel: SellerReportsViewModel) {
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                DropdownMenuItem(
+                /*DropdownMenuItem(
                     text = { Text("Ventas por Fecha") },
                     onClick = { selectedReport = "Ventas por Fecha"; expanded = false }
-                )
+                )*/
                 DropdownMenuItem(
                     text = { Text("Ventas por Cliente") },
                     onClick = { selectedReport = "Ventas por Cliente"; expanded = false }
@@ -94,11 +95,13 @@ fun SellerReportsScreen(viewModel: SellerReportsViewModel) {
 
         Button(
             onClick = {
-                reportData = when (selectedReport) {
-                    "Ventas por Fecha" -> viewModel.getSalesReportByDate(startDate, endDate)
-                    "Ventas por Cliente" -> viewModel.getSalesReportByCustomer(customerId)
-                    "Compras" -> viewModel.getPurchaseReport()
-                    else -> emptyList()
+                runBlocking {
+                    reportData = when (selectedReport) {
+                        "Ventas por Fecha" -> viewModel.getSalesReportByDate(startDate, endDate)
+                        "Ventas por Cliente" -> viewModel.getSalesReportByCustomer(customerId)
+                        "Compras" -> viewModel.getPurchaseReport()
+                        else -> emptyList()
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)

@@ -1,24 +1,22 @@
 package viewModels.seller
 
-import interfaces.PersistenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import models.Cliente
 import navigation.Router
 import org.koin.core.component.KoinComponent
-import providePersistenceManager
+import org.koin.core.component.inject
+import services.CustomerService
 import utils.XPrintln
 
 class SellerCustomerViewModel : KoinComponent {
+    private val customerService: CustomerService by inject()
 
     private val _isNew = MutableStateFlow(true)
     val isNew: StateFlow<Boolean> get() = _isNew
     fun setIsNew(value: Boolean) {
         _isNew.value = value
     }
-
-    private val clienteManager: PersistenceManager<Cliente> =
-        providePersistenceManager(Cliente::class)
 
     private val _cliente = MutableStateFlow<Cliente>(Cliente("", "", "", ""))
     val cliente: StateFlow<Cliente> get() = _cliente
@@ -27,11 +25,10 @@ class SellerCustomerViewModel : KoinComponent {
         _cliente.value = newCliente
     }
 
-    fun saveClient(): Boolean {
-        XPrintln.log("isNew Client: ${isNew.value}")
+    suspend fun saveClient(): Boolean {
         if (isNew.value) {
             return try {
-                clienteManager.create(cliente.value)
+                customerService.create(cliente.value)
                 Router.navigateBack()
                 true
             } catch (e: Exception) {
@@ -40,7 +37,7 @@ class SellerCustomerViewModel : KoinComponent {
             }
         } else {
             return try {
-                clienteManager.update(cliente.value)
+                customerService.saveCustomer(cliente.value)
                 Router.navigateBack()
                 true
             } catch (e: Exception) {
@@ -50,9 +47,9 @@ class SellerCustomerViewModel : KoinComponent {
         }
     }
 
-    fun deleteClient(): Boolean {
+    suspend fun deleteClient(): Boolean {
         return try {
-            clienteManager.delete(cliente.value)
+            customerService.deleteCustomer(cliente.value.idCliente.toString())
             Router.navigateBack()
             true
         } catch (e: Exception) {
